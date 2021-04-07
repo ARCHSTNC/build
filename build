@@ -54,10 +54,42 @@ make test-api-stubs-docs || echo no problem
 #	|| tmate -S /tmp/tmate.sock new-session -d && tmate -S /tmp/tmate.sock wait tmate-ready && send_shell=$(tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}') && tg $id "Build Failed" && tg $id "$send_shell" && ccache -s && sleep 2h
 #ccache -s # Let's print ccache statistics finally
 
-make aex -j8 &  # I used aex build command
-sleep 85m # Lets give some space for uploading ccache
-kill %1 # better way to kill it!
-ccache -s
+#make aex -j8 &  # I used aex build command
+#sleep 85m # Lets give some space for uploading ccache
+#kill %1 # better way to kill it!
+#ccache -s
 #and dont use below codes for first 1 or 2 times, to get ccache uploaded,
 #as instructed, i removed below lines temporarily. Will add those from 2nd or 3rd builds may be.
 
+# Telgram env setup
+export BOT_MSG_URL="https://api.telegram.org/bot$API_BOT/sendMessage"
+export BOT_BUILD_URL="https://api.telegram.org/bot$API_BOT/sendDocument"
+
+tg_post_msg() {
+        curl -s -X POST "$BOT_MSG_URL" -d chat_id="$2" \
+        -d "parse_mode=html" \
+        -d text="$1"
+}
+
+# stuffs
+up(){
+	curl --upload-file $1 https://transfer.sh/
+}
+
+make_rom(){
+	tg_post_msg "<b>CI Build Triggered</b>" "$CHATID"
+	make aex -j8 &
+	sleep 85m
+	kill %1
+	ccache -s
+	if [ -f out/target/product/mido/*zip ]; then
+		zip=$(up out/target/product/mido/*zip)
+		echo " "
+		echo "$zip"
+		tg_post_msg "<b>Build Completed</b>%0A%0A<b>Link : </b> <code>"$zip"</code>" "$CHATID"
+	else
+		tg_post_msg "<b>Build Failed, check cirrus console</b>" "$CHATID"
+	fi
+}
+
+make_rom
