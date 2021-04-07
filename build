@@ -79,7 +79,7 @@ up(){
 make_rom(){
 	tg_post_msg "<b>CI Build Triggered</b>" "$CHATID"
 	make aex -j8 &
-	sleep 85m
+	sleep 60m
 	kill %1
 	ccache -s
 	if [ -f out/target/product/mido/*zip ]; then
