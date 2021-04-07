@@ -54,7 +54,7 @@ make test-api-stubs-docs || echo no problem
 #	|| tmate -S /tmp/tmate.sock new-session -d && tmate -S /tmp/tmate.sock wait tmate-ready && send_shell=$(tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}') && tg $id "Build Failed" && tg $id "$send_shell" && ccache -s && sleep 2h
 #ccache -s # Let's print ccache statistics finally
 
-make aex -j10 &  # I used aex build command
+make aex -j8 &  # I used aex build command
 sleep 85m # Lets give some space for uploading ccache
 kill %1 # better way to kill it!
 ccache -s
